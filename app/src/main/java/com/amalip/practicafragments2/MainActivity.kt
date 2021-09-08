@@ -1,5 +1,6 @@
 package com.amalip.practicafragments2
 
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
@@ -7,11 +8,17 @@ import androidx.fragment.app.Fragment
 
 class MainActivity : AppCompatActivity() {
 
+    private val KEY = "STATE_KEY"
+    private var addWelcomeFragment: Boolean = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        supportFragmentManager.beginTransaction().add(R.id.container, WelcomeFragment()).commit()
+        addWelcomeFragment = savedInstanceState?.getBoolean(KEY, true) ?: true
+        if (addWelcomeFragment)
+            supportFragmentManager.beginTransaction().add(R.id.container, WelcomeFragment())
+                .commit()
 
         findViewById<Button>(R.id.btnRedFragment).setOnClickListener {
             replaceFragment(RedFragment().apply {
@@ -19,6 +26,8 @@ class MainActivity : AppCompatActivity() {
                     putString("key", "This is red fragment")
                 }
             })
+
+            playSound(R.raw.sound1)
         }
 
         findViewById<Button>(R.id.btnBlueFragment).setOnClickListener {
@@ -27,9 +36,20 @@ class MainActivity : AppCompatActivity() {
                     putString("key", "This is blue fragment")
                 }
             })
+
+            playSound(R.raw.sound2)
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.run {
+            putBoolean(KEY, false)
         }
 
+        super.onSaveInstanceState(outState)
     }
+
+    private fun playSound(sound: Int) = MediaPlayer.create(this, sound).start()
 
     private fun replaceFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction().apply {
